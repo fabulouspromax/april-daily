@@ -77,6 +77,8 @@ form.add button{font:inherit;font-weight:600;padding:11px 16px;border:0;border-r
 
   <section><h2>照顾自己</h2><ul id="care"></ul></section>
 
+  <section><h2>钱</h2><ul id="money"></ul></section>
+
   <section><h2>这周要做（不会每天清零）</h2>
     <ul id="week"></ul>
     <div class="empty" id="weekEmpty">正在读取这周的清单…</div>
@@ -137,10 +139,16 @@ const CORE=[
  {id:"small",t:SMALL[wd][0],s:SMALL[wd][1]}];
 const CARE=[
  {id:"water",t:"喝够水，好好吃一顿饭"},
+ {id:"hat",t:"出门戴帽子和眼镜"},
  {id:"walk",t:"出门走 20 分钟"},
  {id:"phone",t:"在家把手机放到另一个房间 30 分钟"},
  {id:"tidy",t:"收拾一个小角落 5 分钟",s:"只收一个抽屉或一张桌面"},
  {id:"nap",t:"累了就睡 20 分钟",s:"充电，不是偷懒"}];
+const MONEY=[
+ {id:"allow",t:"外食和零食只刷日常卡里的零花钱",s:"发工资那天转一次，花完等下周"},
+ {id:"save",t:"今天没有动存钱账户",s:"存钱账户只进不出"},
+ {id:"pause",t:"想买吃的之前：先喝水，等 10 分钟",s:"10 分钟后还想吃就去买，不用内疚"},
+ {id:"bag",t:"包里带一样自己的吃的",s:"下班先垫一口，再决定买不买"}];
 
 const SEED=[{"done": false, "id": "s1", "note": "11/24 交给 Ben", "text": "周二发工资：先存一笔，再留出房租 $550"}, {"done": false, "id": "s2", "note": "Gmail 草稿", "text": "给 Broadbent 教授的邮件：检查后自己点发送"}, {"done": false, "id": "s3", "note": "Gmail 草稿", "text": "给 Maggie（Te Rito）的邮件：检查后发送"}, {"done": false, "id": "s4", "note": "Gmail 草稿", "text": "给 Jasmine 的回复：检查后发送"}, {"done": false, "id": "s5", "text": "等 Winnie 的修车报价，再和 AA 自付额 $500 比较"}, {"done": false, "id": "s6", "text": "11/19 跟 Alexander 拿回药"}, {"done": false, "id": "s7", "text": "把愿景壁纸设成手机和电脑壁纸"}, {"done": false, "id": "s8", "text": "留意 NZQA 的邮件"}];
 let day={done:{}}, week={items:[]}, weekLoaded=false, store=null;
@@ -163,10 +171,11 @@ function render(){
   const core=$("core"), care=$("care"), wk=$("week");
   core.replaceChildren(...CORE.map(i=>li(i,day.done[i.id],v=>toggleDay(i.id,v))));
   care.replaceChildren(...CARE.map(i=>li(i,day.done[i.id],v=>toggleDay(i.id,v))));
+  $("money").replaceChildren(...MONEY.map(i=>li(i,day.done[i.id],v=>toggleDay(i.id,v))));
   wk.replaceChildren(...week.items.map(i=>li({id:"w"+i.id,t:i.text,s:i.note},i.done,v=>toggleWeek(i.id,v),()=>delWeek(i.id))));
   $("weekEmpty").hidden=week.items.length>0;
   if(weekLoaded&&!week.items.length)$("weekEmpty").textContent="这周的清单是空的。在下面加上第一件事。";
-  const all=CORE.length+CARE.length, n=[...CORE,...CARE].filter(i=>day.done[i.id]).length;
+  const all=CORE.length+CARE.length+MONEY.length, n=[...CORE,...CARE,...MONEY].filter(i=>day.done[i.id]).length;
   $("bar").style.width=(100*n/all)+"%";
   $("count").textContent="今天完成 "+n+" / "+all+(n===all?"，今天很棒":"");
 }
