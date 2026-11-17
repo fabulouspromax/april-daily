@@ -61,6 +61,16 @@ form.add button{font:inherit;font-weight:600;padding:11px 16px;border:0;border-r
 .eng .zh{color:var(--muted);font-size:.9rem;margin-top:4px}
 #status{font-size:.82rem;color:var(--warn);min-height:1.2em;margin-top:8px}
 @media (prefers-reduced-motion: reduce){.bar i{transition:none}}
+/* light green gradient theme */
+:root{--bg:#f2f9f3;--line:#cfe3d4;--muted:#55695c;--fg:#17302a;--sky1:#d6f0dc;--sky2:#c3e8cf;--sky3:#b4e0c6;--sky4:#e9f6ec;--on-sky:#15392b;--accent:#1f7a55;--bar-bg:rgba(21,57,43,.15)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--bg:#0f1c16;--line:#274034;--muted:#9bb3a5;--fg:#e8f2ea;--sky1:#143326;--sky2:#1c4634;--sky3:#245a42;--sky4:#16382a;--on-sky:#e6f5ea;--accent:#7fd3a8;--bar-bg:rgba(230,245,234,.2)} }
+:root[data-theme="dark"]{--bg:#0f1c16;--line:#274034;--muted:#9bb3a5;--fg:#e8f2ea;--sky1:#143326;--sky2:#1c4634;--sky3:#245a42;--sky4:#16382a;--on-sky:#e6f5ea;--accent:#7fd3a8;--bar-bg:rgba(230,245,234,.2)}
+.bar{background:var(--bar-bg)}
+.links li{padding:12px 2px}
+.links a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.links small{display:block;color:var(--muted);font-size:.85rem}
+.today{background:var(--surface);border-radius:12px;padding:12px 14px;margin:6px 0 10px}
+.today b{display:block}
 </style>
 
 <header><div class="wrap">
@@ -74,6 +84,17 @@ form.add button{font:inherit;font-weight:600;padding:11px 16px;border:0;border-r
   <div id="status" role="status"></div>
 
   <section><h2>今天的三件主线</h2><ul id="core"></ul></section>
+
+  <section><h2>雅思练习（官方免费题）</h2>
+    <div class="today"><b id="ieltsToday"></b><span class="note" id="ieltsHow"></span></div>
+    <ul class="links">
+      <li><a href="https://takeielts.britishcouncil.org/take-ielts/prepare/free-ielts-listening-practice-tests" target="_blank" rel="noopener">听力练习</a><small>British Council 官方，带音频和答案</small></li>
+      <li><a href="https://takeielts.britishcouncil.org/take-ielts/prepare/free-ielts-english-practice-tests/reading" target="_blank" rel="noopener">阅读练习</a><small>British Council 官方，带答案</small></li>
+      <li><a href="https://ielts.org/take-a-test/preparation-resources/sample-test-questions/academic-test" target="_blank" rel="noopener">写作和口语样题</a><small>IELTS.org 官方 Academic 样题，四科都有</small></li>
+      <li><a href="https://takeielts.britishcouncil.org/en-gb/prepare/ielts-free-practice-mock-tests/academic" target="_blank" rel="noopener">整套模考</a><small>British Council 官方 Academic 模考，周末用</small></li>
+    </ul>
+    <p class="note">一周安排：周一听力，周二阅读，周三写作 Task 1，周四口语，周五写作 Task 2，周六补弱项，周日复盘。</p>
+  </section>
 
   <section><h2>照顾自己</h2><ul id="care"></ul></section>
 
@@ -132,9 +153,18 @@ const ENG=[
  ["I'm proud of how far I've come.","我为自己走到这里感到骄傲。"]];
 document.getElementById("engP").textContent=ENG[wd][0];
 document.getElementById("engZ").textContent=ENG[wd][1];
+function fillIelts(){document.getElementById("ieltsToday").textContent="今天："+IELTS[wd][0];document.getElementById("ieltsHow").textContent=IELTS[wd][1]}
 
+const IELTS=[
+ ["错题复盘","把这周做错的题再看一遍，每道写一句为什么错"],
+ ["听力一套","用官方听力练习，做完对答案，错的再听一遍"],
+ ["阅读一篇","用官方阅读练习，限时 20 分钟一篇"],
+ ["写作 Task 1","用官方样题写 150 词，写完发给 Claude 改"],
+ ["口语 Part 2","用官方样题，准备 1 分钟，录音说 2 分钟，转成文字发给 Claude"],
+ ["写作 Task 2","用官方样题写 250 词，写完发给 Claude 改"],
+ ["听力或阅读，选弱的那项","做一组官方练习，或者做半套模考"]];
 const CORE=[
- {id:"ielts",t:"雅思 45 分钟",s:"先到每科 7。听力或阅读一组 + 口语录音 2 分钟"},
+ {id:"ielts",t:"雅思 45 分钟："+IELTS[wd][0],s:IELTS[wd][1]},
  {id:"ai",t:AI_STEP[wd][0],s:"AI 方向 · "+AI_STEP[wd][1]},
  {id:"small",t:SMALL[wd][0],s:SMALL[wd][1]}];
 const CARE=[
@@ -194,7 +224,7 @@ function delWeek(id){saveWeek(week.items.filter(i=>i.id!==id))}
 $("addForm").addEventListener("submit",e=>{e.preventDefault(); const t=$("addText").value.trim(); if(!t)return;
   saveWeek([...week.items,{id:Date.now().toString(36),text:t,done:false}]); $("addText").value=""});
 
-render();
+render();fillIelts();
 (async()=>{
   let db=null; try{db=await window.claude?.use?.("db")}catch(e){}
   if(!db){
